@@ -165,4 +165,79 @@ class SocialAuthController extends Controller
 
         return redirect('/')->with('success', 'Logout realizado com sucesso');
     }
+
+    // Redireciona para o Twitter
+    public function redirectToTwitter()
+    {
+        $user = Auth::user();
+
+        // Verifica se o usuário já tem um Twitter Token válido
+        if ($user && $user->twitter_token) {
+            $response = Http::withToken($user->twitter_token)
+                ->get('https://api.twitter.com/2/users/me');
+
+            // Se o token é válido, autentica diretamente e redireciona
+            if ($response->successful()) {
+                return redirect('/dashboard');
+            }
+        }
+
+        // Se não há token ou ele é inválido, inicia o processo normal
+        return Socialite::driver('twitter-oauth-2')->redirect();
+    }
+
+    // Lida com o callback do Twitter
+    public function handleTwitterCallback()
+    {
+        try {
+            $twitterUser = Socialite::driver('twitter-oauth-2')->user();
+
+            // Procura o usuário ou cria um novo
+            $user = User::updateOrCreate(
+                ['twitter_id' => $twitterUser->id],
+                [
+                    'name' => $twitterUser->getName(),
+                    'email' => $twitterUser->email ?? 'twitter_' . $twitterUser->id . '@example.com',
+                    'password' => bcrypt(Str::random(16)),
+                    'twitter_token' => $twitterUser->token,
+                    'twitter_refresh_token' => $twitterUser->refreshToken ?? null,
+                ]
+            );
+
+            // Gera um token Sanctum para API
+            $token = $user->createToken('auth_token')->plainTextToken;
+
+            // Login e redireciona
+            Auth::login($user);
+
+            return redirect('/dashboard')->with('token', $token);
+        } catch (\Exception $e) {
+            dd($e);
+            return redirect('/login')->with('error', 'Falha ao autenticar com o Twitter');
+        }
+    }
+
+    // Logout
+    public function logout(Request $request)
+    {
+        // Revoga o token do Twitter
+        $twitterToken = $request->user()->twitter_token ?? null;
+
+        if ($twitterToken) {
+            Http::asForm()->post('https://api.twitter.com/2/oauth2/revoke', [
+                'token' => $twitterToken,
+            ]);
+        }
+
+        // Revoga todos os tokens Sanctum
+        $request->user()->tokens()->delete();
+
+        Auth::logout();
+
+        // Invalida a sessão
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect('/')->with('success', 'Logout realizado com sucesso');
+    }
 }

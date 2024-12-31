@@ -21,3 +21,8 @@ Route::get('/auth/facebook', [SocialAuthController::class, 'redirectToFacebook']
 Route::get('/auth/facebook/callback', [SocialAuthController::class, 'handleFacebookCallback']);
 // Logout do Facebook
 Route::post('/auth/facebook/logout', [SocialAuthController::class, 'logoutFacebook'])->middleware('auth:sanctum');
+
+// Redireciona para o Twitter
+Route::get('/auth/twitter', [SocialAuthController::class, 'redirectToTwitter']);
+// Callback de retorno
+Route::get('/auth/twitter/callback', [SocialAuthController::class, 'handleTwitterCallback']);
