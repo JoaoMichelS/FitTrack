@@ -14,7 +14,7 @@ class SocialAuthController extends Controller
 {
 
 
-    public function redirect()
+    public function redirectToGoogle()
     {
         $user = Auth::user();
 
@@ -39,7 +39,7 @@ class SocialAuthController extends Controller
     }
 
     // Lida com o callback do Google
-    public function callback()
+    public function handleGoogleCallback()
     {
         try {
             $googleUser = Socialite::driver('google')->user();
@@ -69,7 +69,7 @@ class SocialAuthController extends Controller
     }
 
     // Logout
-    public function logout(Request $request)
+    public function logoutGoogle(Request $request)
     {
         // Revogar token Google (opcional)
         $googleToken = $request->user()->google_token ?? null;
@@ -87,6 +87,79 @@ class SocialAuthController extends Controller
         Auth::logout();
 
         // Invalida a sessão
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect('/')->with('success', 'Logout realizado com sucesso');
+    }
+
+    // Redireciona para o Facebook (com verificação de token salvo)
+    public function redirectToFacebook()
+    {
+        $user = Auth::user();
+
+        // Verifica se o usuário já tem um token salvo
+        if ($user && $user->facebook_token) {
+            // Faz requisição para verificar se o token é válido
+            $response = Http::get('https://graph.facebook.com/debug_token', [
+                'input_token' => $user->facebook_token,
+                'access_token' => env('FACEBOOK_APP_ID') . '|' . env('FACEBOOK_APP_SECRET'),
+            ]);
+
+            $result = $response->json();
+
+            // Se o token é válido, autentica diretamente
+            if (isset($result['data']['is_valid']) && $result['data']['is_valid']) {
+                Auth::login($user);
+                return redirect('/dashboard');
+            }
+        }
+
+        // Caso não tenha token ou o token não seja válido, faz login novamente
+        return Socialite::driver('facebook')->redirect();
+    }
+
+    // Callback do Facebook
+    public function handleFacebookCallback()
+    {
+        try {
+            $facebookUser = Socialite::driver('facebook')->user();
+
+            // Cria ou atualiza o usuário
+            $user = User::updateOrCreate(
+                ['email' => 'aguardando verificacao'],
+                [
+                    'name' => $facebookUser->getName(),
+                    'facebook_id' => $facebookUser->getId(),
+                    'facebook_token' => $facebookUser->token,
+                    'password' => bcrypt(uniqid())  // Senha aleatória
+                ]
+            );
+
+            // Autentica o usuário
+            Auth::login($user);
+
+            return redirect('/dashboard');
+        } catch (\Exception $e) {
+            return redirect('/login')->with('error', 'Falha ao autenticar com o Facebook');
+        }
+    }
+
+    // Logout do Facebook
+    public function logoutFacebook(Request $request)
+    {
+        $facebookToken = $request->user()->facebook_token ?? null;
+
+        if ($facebookToken) {
+            Http::post('https://graph.facebook.com/v12.0/me/permissions', [
+                'access_token' => $facebookToken,
+            ]);
+        }
+
+        // Revoga os tokens Sanctum
+        $request->user()->tokens()->delete();
+
+        Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 

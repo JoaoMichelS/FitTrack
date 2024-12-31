@@ -9,9 +9,15 @@ Route::get('/', function () {
 });
 
 // Redireciona para o Google
-Route::get('/auth/google', [SocialAuthController::class, 'redirect']);
-
+Route::get('/auth/google', [SocialAuthController::class, 'redirectToGoogle']);
 // Callback (resposta do Google)
-Route::get('/auth/google/callback', [SocialAuthController::class, 'callback']);
+Route::get('/auth/google/callback', [SocialAuthController::class, 'handleGoogleCallback']);
+// Logout do Google
+Route::post('/auth/google/logout', [SocialAuthController::class, 'logoutGoogle'])->middleware('auth:sanctum');
 
-Route::post('/auth/google/logout', [SocialAuthController::class, 'logout'])->middleware('auth:sanctum');
+// Redireciona para o Facebook
+Route::get('/auth/facebook', [SocialAuthController::class, 'redirectToFacebook']);
+// Callback (resposta do Facebook)
+Route::get('/auth/facebook/callback', [SocialAuthController::class, 'handleFacebookCallback']);
+// Logout do Facebook
+Route::post('/auth/facebook/logout', [SocialAuthController::class, 'logoutFacebook'])->middleware('auth:sanctum');

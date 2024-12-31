@@ -25,6 +25,8 @@ class User extends Authenticatable
         'google_id',            // Adiciona o ID do Google
         'google_token',         // Adiciona o token de acesso do Google
         'google_refresh_token', // Adiciona o refresh token do Google
+        'facebook_id',          // Adiciona o ID do Facebook
+        'facebook_token',       // Adiciona o token de acesso do Facebook
     ];
 
     /**
