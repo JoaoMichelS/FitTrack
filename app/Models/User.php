@@ -22,6 +22,9 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'google_id',            // Adiciona o ID do Google
+        'google_token',         // Adiciona o token de acesso do Google
+        'google_refresh_token', // Adiciona o refresh token do Google
     ];
 
     /**
