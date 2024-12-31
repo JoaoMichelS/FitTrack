@@ -96,7 +96,7 @@ class SocialAuthController extends Controller
     // Redireciona para o Facebook (com verificação de token salvo)
     public function redirectToFacebook()
     {
-        $user = Auth::user();
+        /* $user = Auth::user();
 
         // Verifica se o usuário já tem um token salvo
         if ($user && $user->facebook_token) {
@@ -113,7 +113,7 @@ class SocialAuthController extends Controller
                 Auth::login($user);
                 return redirect('/dashboard');
             }
-        }
+        } */
 
         // Caso não tenha token ou o token não seja válido, faz login novamente
         return Socialite::driver('facebook')->redirect();
@@ -127,7 +127,7 @@ class SocialAuthController extends Controller
 
             // Cria ou atualiza o usuário
             $user = User::updateOrCreate(
-                ['email' => 'aguardando verificacao'],
+                ['email' => 'aguardando'],
                 [
                     'name' => $facebookUser->getName(),
                     'facebook_id' => $facebookUser->getId(),
