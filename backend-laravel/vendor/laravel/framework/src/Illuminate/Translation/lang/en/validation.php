@@ -148,7 +148,7 @@ return [
     'timezone' => 'O campo :attribute deve conter um fuso horário válido.',
     'token' => 'Esse código de redefinição de senha é inválido.',
     'ulid' => 'O :attribute deve ser um ULID válido.',
-    'unique' => 'O valor informado para o campo :attribute já está em uso.',
+    'unique' => 'O email informado já possui uma conta.',
     'uploaded' => 'Falha no Upload do arquivo :attribute.',
     'uppercase' => 'O :attribute deve ser maiúsculo.',
     'url' => 'O formato da URL informada para o campo :attribute é inválido.',
