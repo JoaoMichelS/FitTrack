@@ -23,7 +23,7 @@ function Login() {
         setError(data.message || 'Erro ao fazer login');
       } else {
         localStorage.setItem('token', data.token);  // Armazena o token
-        window.location.href = '/dashboard';
+        window.location.href = '/';
       }
     } catch {
       setError('Erro de conexão');

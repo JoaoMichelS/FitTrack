@@ -18,6 +18,10 @@ export default function Register() {
         window.location.href = `${import.meta.env.VITE_WEB_URL}/auth/redirect/twitter-oauth2`;
     }
 
+    function loginWithFacebook() {
+        window.location.href = `${import.meta.env.VITE_WEB_URL}/auth/redirect/facebook`;
+    }
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         console.log(name, email, password, password_confirmation);
@@ -29,7 +33,7 @@ export default function Register() {
                 password_confirmation,
             });
 
-            window.location.href = "/dashboard";
+            window.location.href = "/";
         } catch (err: any) {
             if (err.response) {
                 setError(err.response.data.message || "Erro ao criar conta");
@@ -148,7 +152,7 @@ export default function Register() {
                             Entrar com Email
                         </button>
 
-                        <div className="mt-1 text-center">
+                        <div className="mt-1 text-left">
                             <span className="text-sm text-gray-700 mr-1">
                                 Já possui uma conta?
                             </span>
@@ -180,6 +184,7 @@ export default function Register() {
 
                         <button
                             type="button"
+                            onClick={loginWithFacebook}
                             className="flex items-center justify-center border px-6 py-3 rounded-md hover:bg-gray-100"
                         >
                             <FaFacebook className="text-2xl" />
