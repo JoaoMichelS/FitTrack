@@ -15,6 +15,10 @@ class SocialAuthController extends Controller
     // Redireciona para o provedor
     public function redirect($provider)
     {
+        if ($provider === 'twitter') {
+            $provider = 'twitter-oauth2';
+        }
+
         // Ex: google, facebook, twitter
         return Socialite::driver($provider)->redirect();
     }
@@ -22,6 +26,10 @@ class SocialAuthController extends Controller
     // Callback (retorno) do provedor
     public function callback($provider)
     {
+        if ($provider === 'twitter') {
+            $provider = 'twitter-oauth2';
+        }
+
         try {
             $socialUser = Socialite::driver($provider)->user();
 

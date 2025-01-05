@@ -14,6 +14,10 @@ export default function Register() {
         window.location.href = `${import.meta.env.VITE_WEB_URL}/auth/redirect/google`;
     }
 
+    function loginWithTwitter() {
+        window.location.href = `${import.meta.env.VITE_WEB_URL}/auth/redirect/twitter-oauth2`;
+    }
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         console.log(name, email, password, password_confirmation);
@@ -183,6 +187,7 @@ export default function Register() {
 
                         <button
                             type="button"
+                            onClick={loginWithTwitter}
                             className="flex items-center justify-center border px-6 py-3 rounded-md hover:bg-gray-100"
                         >
                             <FaXTwitter className="text-2xl" />
