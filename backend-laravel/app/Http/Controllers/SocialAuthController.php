@@ -6,238 +6,68 @@ use App\Http\Controllers\Controller;
 use Laravel\Socialite\Facades\Socialite;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Http;
 
 class SocialAuthController extends Controller
 {
-
-
-    public function redirectToGoogle()
+    // Redireciona para o provedor
+    public function redirect($provider)
     {
-        $user = Auth::user();
-
-        // Verifica se o usuário já tem um Google Token válido
-        if ($user && $user->google_token) {
-            $response = Http::get('https://www.googleapis.com/oauth2/v3/tokeninfo', [
-                'access_token' => $user->google_token
-            ]);
-
-            if ($response->successful()) {
-                // Se o token é válido, autentica diretamente e redireciona
-                Auth::login($user);
-                return redirect('/dashboard');
-            } else {
-                // Se o token não é válido, força o login via Google
-                return Socialite::driver('google')->redirect();
-            }
-        }
-
-        // Caso não haja token, inicia o processo normal
-        return Socialite::driver('google')->redirect();
+        // Ex: google, facebook, twitter
+        return Socialite::driver($provider)->redirect();
     }
 
-    // Lida com o callback do Google
-    public function handleGoogleCallback()
+    // Callback (retorno) do provedor
+    public function callback($provider)
     {
         try {
-            $googleUser = Socialite::driver('google')->user();
+            $socialUser = Socialite::driver($provider)->user();
 
-            // Procura o usuário ou cria um novo
+            // Verifica dados do usuário retornado
+            $email = $socialUser->getEmail() ?? "{$provider}_{$socialUser->getId()}@example.com";
+            $name  = $socialUser->getName()  ?? 'Usuário';
+
+            // Cria ou atualiza o usuário no banco
             $user = User::updateOrCreate(
-                ['email' => $googleUser->getEmail()],
                 [
-                    'name' => $googleUser->getName(),
-                    'google_id' => $googleUser->getId(),
-                    'password' => bcrypt(Str::random(16)), // Senha aleatória
-                    'google_token' => $googleUser->token,  // Salva o token do Google
-                    'google_refresh_token' => $googleUser->refreshToken ?? null // Salva o refresh token (opcional)
+                    // chave de busca (ex: email ou provider_id)
+                    'email' => $email,
+                ],
+                [
+                    'name' => $name,
+                    "{$provider}_id"            => $socialUser->getId(),
+                    "{$provider}_token"         => $socialUser->token,
+                    "{$provider}_refresh_token" => $socialUser->refreshToken ?? null,
+                    'password'                  => bcrypt(Str::random(16)),
                 ]
             );
 
-            // Gera um token Sanctum
+            // Gera token Sanctum (ou JWT)
             $token = $user->createToken('auth_token')->plainTextToken;
 
-            // Login e redireciona
+            // Faz login
             Auth::login($user);
 
-            return redirect('/dashboard')->with('token', $token);
+            // Redireciona de volta ao front-end com o token
+            return redirect()->away(env('FRONTEND_URL') . "/social-login?token={$token}");
         } catch (\Exception $e) {
-            return redirect('/login')->with('error', 'Falha ao autenticar com o Google');
+            return redirect()->away(env('FRONTEND_URL') . "/login?error=" . $e->getMessage());
         }
     }
 
-    // Logout
-    public function logoutGoogle(Request $request)
-    {
-        // Revogar token Google (opcional)
-        $googleToken = $request->user()->google_token ?? null;
-
-        if ($googleToken) {
-            Http::asForm()->post('https://oauth2.googleapis.com/revoke', [
-                'token' => $googleToken,
-            ]);
-        }
-
-        // Revoga todos os tokens Sanctum
-        $request->user()->tokens()->delete();
-
-        // Faz logout
-        Auth::logout();
-
-        // Invalida a sessão
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
-
-        return redirect('/')->with('success', 'Logout realizado com sucesso');
-    }
-
-    // Redireciona para o Facebook (com verificação de token salvo)
-    public function redirectToFacebook()
-    {
-        /* $user = Auth::user();
-
-        // Verifica se o usuário já tem um token salvo
-        if ($user && $user->facebook_token) {
-            // Faz requisição para verificar se o token é válido
-            $response = Http::get('https://graph.facebook.com/debug_token', [
-                'input_token' => $user->facebook_token,
-                'access_token' => env('FACEBOOK_APP_ID') . '|' . env('FACEBOOK_APP_SECRET'),
-            ]);
-
-            $result = $response->json();
-
-            // Se o token é válido, autentica diretamente
-            if (isset($result['data']['is_valid']) && $result['data']['is_valid']) {
-                Auth::login($user);
-                return redirect('/dashboard');
-            }
-        } */
-
-        // Caso não tenha token ou o token não seja válido, faz login novamente
-        return Socialite::driver('facebook')->redirect();
-    }
-
-    // Callback do Facebook
-    public function handleFacebookCallback()
-    {
-        try {
-            $facebookUser = Socialite::driver('facebook')->user();
-
-            // Cria ou atualiza o usuário
-            $user = User::updateOrCreate(
-                ['email' => 'aguardando'],
-                [
-                    'name' => $facebookUser->getName(),
-                    'facebook_id' => $facebookUser->getId(),
-                    'facebook_token' => $facebookUser->token,
-                    'password' => bcrypt(uniqid())  // Senha aleatória
-                ]
-            );
-
-            // Autentica o usuário
-            Auth::login($user);
-
-            return redirect('/dashboard');
-        } catch (\Exception $e) {
-            return redirect('/login')->with('error', 'Falha ao autenticar com o Facebook');
-        }
-    }
-
-    // Logout do Facebook
-    public function logoutFacebook(Request $request)
-    {
-        $facebookToken = $request->user()->facebook_token ?? null;
-
-        if ($facebookToken) {
-            Http::post('https://graph.facebook.com/v12.0/me/permissions', [
-                'access_token' => $facebookToken,
-            ]);
-        }
-
-        // Revoga os tokens Sanctum
-        $request->user()->tokens()->delete();
-
-        Auth::logout();
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
-
-        return redirect('/')->with('success', 'Logout realizado com sucesso');
-    }
-
-    // Redireciona para o Twitter
-    public function redirectToTwitter()
-    {
-        $user = Auth::user();
-
-        // Verifica se o usuário já tem um Twitter Token válido
-        if ($user && $user->twitter_token) {
-            $response = Http::withToken($user->twitter_token)
-                ->get('https://api.twitter.com/2/users/me');
-
-            // Se o token é válido, autentica diretamente e redireciona
-            if ($response->successful()) {
-                return redirect('/dashboard');
-            }
-        }
-
-        // Se não há token ou ele é inválido, inicia o processo normal
-        return Socialite::driver('twitter-oauth-2')->redirect();
-    }
-
-    // Lida com o callback do Twitter
-    public function handleTwitterCallback()
-    {
-        try {
-            $twitterUser = Socialite::driver('twitter-oauth-2')->user();
-
-            // Procura o usuário ou cria um novo
-            $user = User::updateOrCreate(
-                ['twitter_id' => $twitterUser->id],
-                [
-                    'name' => $twitterUser->getName(),
-                    'email' => $twitterUser->email ?? 'twitter_' . $twitterUser->id . '@example.com',
-                    'password' => bcrypt(Str::random(16)),
-                    'twitter_token' => $twitterUser->token,
-                    'twitter_refresh_token' => $twitterUser->refreshToken ?? null,
-                ]
-            );
-
-            // Gera um token Sanctum para API
-            $token = $user->createToken('auth_token')->plainTextToken;
-
-            // Login e redireciona
-            Auth::login($user);
-
-            return redirect('/dashboard')->with('token', $token);
-        } catch (\Exception $e) {
-            dd($e);
-            return redirect('/login')->with('error', 'Falha ao autenticar com o Twitter');
-        }
-    }
-
-    // Logout
+    // Exemplo de logout genérico
     public function logout(Request $request)
     {
-        // Revoga o token do Twitter
-        $twitterToken = $request->user()->twitter_token ?? null;
-
-        if ($twitterToken) {
-            Http::asForm()->post('https://api.twitter.com/2/oauth2/revoke', [
-                'token' => $twitterToken,
-            ]);
-        }
-
-        // Revoga todos os tokens Sanctum
+        // Exemplo: revogar tokens Sanctum
         $request->user()->tokens()->delete();
 
         Auth::logout();
 
-        // Invalida a sessão
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect('/')->with('success', 'Logout realizado com sucesso');
+        return response()->json(['message' => 'Logout realizado com sucesso']);
     }
 }

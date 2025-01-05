@@ -8,7 +8,15 @@ Route::get('/', function () {
     /* return view('welcome'); */
 });
 
-// Redireciona para o Google
+Route::group(['middleware' => ['web']], function () {
+    Route::prefix('auth')->group(function () {
+        Route::get('redirect/{provider}', [SocialAuthController::class, 'redirect'])->name('social.redirect');
+        Route::get('{provider}/callback', [SocialAuthController::class, 'callback'])->name('social.callback');
+        Route::post('logout', [SocialAuthController::class, 'logout'])->name('social.logout');
+    });
+});
+
+/* // Redireciona para o Google
 Route::get('/auth/google', [SocialAuthController::class, 'redirectToGoogle']);
 // Callback (resposta do Google)
 Route::get('/auth/google/callback', [SocialAuthController::class, 'handleGoogleCallback']);
@@ -25,4 +33,4 @@ Route::post('/auth/facebook/logout', [SocialAuthController::class, 'logoutFacebo
 // Redireciona para o Twitter
 Route::get('/auth/twitter', [SocialAuthController::class, 'redirectToTwitter']);
 // Callback de retorno
-Route::get('/auth/twitter/callback', [SocialAuthController::class, 'handleTwitterCallback']);
+Route::get('/auth/twitter/callback', [SocialAuthController::class, 'handleTwitterCallback']); */

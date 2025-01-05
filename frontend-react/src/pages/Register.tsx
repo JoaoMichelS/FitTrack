@@ -10,6 +10,10 @@ export default function Register() {
     const [password_confirmation, setPasswordConfirmation] = useState("");
     const [error, setError] = useState("");
 
+    function loginWithGoogle() {
+        window.location.href = `${import.meta.env.VITE_WEB_URL}/auth/redirect/google`;
+    }
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         console.log(name, email, password, password_confirmation);
@@ -164,6 +168,7 @@ export default function Register() {
                     <div className="flex justify-center items-center gap-x-4">
                         <button
                             type="button"
+                            onClick={loginWithGoogle}
                             className="flex items-center justify-center border px-6 py-3 rounded-md hover:bg-gray-100"
                         >
                             <FaGoogle className="text-2xl" />
