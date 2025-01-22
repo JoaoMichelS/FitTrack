@@ -47,29 +47,29 @@ export default function Register() {
         <div className="flex flex-col md:flex-row min-h-screen bg-[url('src/assets/img-login.png')] bg-cover bg-center">
             {/* Lado Esquerdo (Imagem) */}
             {/* Se quiser que esse lado fique "vazio" mas mostre a imagem ao fundo */}
-            <div className="w-full md:w-0 xl:w-1/2 2xl:w-7/12 flex items-center justify-center">
+            <div className="flex items-center justify-center w-full md:w-0 xl:w-1/2 2xl:w-7/12">
                 {/* Imagem posicionada de forma absoluta */}
                 <img
                     src="src/assets/logo.png"
                     alt="logo"
-                    className="w-96 h-96 m-auto"
+                    className="m-auto w-96 h-96"
                 />
             </div>
 
             {/* Lado Direito (Formulário de Registro) */}
             {/* Usando flex + items-center + justify-center para centralizar */}
-            <div className="w-full md:w-full xl:w-1/2 2xl:w-5/12 flex items-center justify-center m-8">
-                <div className="max-w-2xl lg:min-w-2xl bg-white rounded-2xl p-8">
-                    <h2 className="text-3xl text-center font-semibold">
+            <div className="flex items-center justify-center w-full m-8 md:w-full xl:w-1/2 2xl:w-5/12">
+                <div className="max-w-2xl p-8 bg-white lg:min-w-2xl rounded-2xl">
+                    <h2 className="text-3xl font-semibold text-center">
                         Crie sua conta
                     </h2>
-                    <p className="text-gray-400 mt-2 mb-4 text-center">
+                    <p className="mt-2 mb-4 text-center text-gray-400">
                         Preencha os campos abaixo para criar sua conta e
                         alavancar sua rotina saudável.
                     </p>
 
                     <form onSubmit={handleSubmit}>
-                        {error && <p className="text-red-500 mb-4">{error}</p>}
+                        {error && <p className="mb-4 text-red-500">{error}</p>}
 
                         <div className="mb-4">
                             <label
@@ -147,37 +147,37 @@ export default function Register() {
 
                         <button
                             type="submit"
-                            className="w-full bg-primary-500 text-white py-3 rounded-md hover:bg-primary-600"
+                            className="w-full py-3 text-white rounded-md bg-primary-500 hover:bg-primary-600"
                         >
                             Entrar com Email
                         </button>
 
                         <div className="mt-1 text-left">
-                            <span className="text-sm text-gray-700 mr-1">
+                            <span className="mr-1 text-sm text-gray-700">
                                 Já possui uma conta?
                             </span>
                             <a
                                 href="/login"
-                                className="text-sm underline text-primary-500"
+                                className="text-sm text-gray-700 underline"
                             >
                                 Entrar
                             </a>
                         </div>
                     </form>
 
-                    <div className="my-6 flex items-center">
-                        <div className="border-t border-gray-300 w-full" />
+                    <div className="flex items-center my-6">
+                        <div className="w-full border-t border-gray-300" />
                         <span className="mx-4 text-gray-500 whitespace-nowrap">
                             OU CONTINUE COM
                         </span>
-                        <div className="border-t border-gray-300 w-full" />
+                        <div className="w-full border-t border-gray-300" />
                     </div>
 
-                    <div className="flex justify-center items-center gap-x-4">
+                    <div className="flex items-center justify-center gap-x-4">
                         <button
                             type="button"
                             onClick={loginWithGoogle}
-                            className="flex items-center justify-center border px-6 py-3 rounded-md hover:bg-gray-100"
+                            className="flex items-center justify-center px-6 py-3 border rounded-md hover:bg-gray-100"
                         >
                             <FaGoogle className="text-2xl" />
                         </button>
@@ -185,7 +185,7 @@ export default function Register() {
                         <button
                             type="button"
                             onClick={loginWithFacebook}
-                            className="flex items-center justify-center border px-6 py-3 rounded-md hover:bg-gray-100"
+                            className="flex items-center justify-center px-6 py-3 border rounded-md hover:bg-gray-100"
                         >
                             <FaFacebook className="text-2xl" />
                         </button>
@@ -193,13 +193,13 @@ export default function Register() {
                         <button
                             type="button"
                             onClick={loginWithTwitter}
-                            className="flex items-center justify-center border px-6 py-3 rounded-md hover:bg-gray-100"
+                            className="flex items-center justify-center px-6 py-3 border rounded-md hover:bg-gray-100"
                         >
                             <FaXTwitter className="text-2xl" />
                         </button>
                     </div>
 
-                    <p className="text-sm text-center text-gray-500 mt-6">
+                    <p className="mt-6 text-sm text-center text-gray-500">
                         Ao clicar em continuar, você concorda com nossos{" "}
                         <a href="#" className="underline">
                             Termos de Serviço
