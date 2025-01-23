@@ -54,14 +54,18 @@ class ForgotPasswordController extends Controller
         return response()->json(['message' => 'Código válido']);
     }
 
-    // Altera a senha após verificação
     public function resetPassword(Request $request)
     {
         $request->validate([
             'email' => 'required|email',
             'code' => 'required|digits:6',
             'password' => 'required|string|min:8|confirmed',
+            'password_confirmation' => 'required|string|min:8'
         ]);
+
+        if ($request->password !== $request->password_confirmation) {
+            return response()->json(['error' => 'As senhas não coincidem'], 422);
+        }
 
         $reset = DB::table('password_reset_tokens')
             ->where('email', $request->email)
