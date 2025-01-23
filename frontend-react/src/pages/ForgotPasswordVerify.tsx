@@ -52,7 +52,8 @@ function ForgotPasswordVerify() {
                 code: fullCode,
             });
 
-            window.location.href = "/forgot-password/verify/reset";
+            // Pass email and code in the redirect
+            window.location.href = `/forgot-password/verify/reset?email=${encodeURIComponent(email)}&code=${fullCode}`;
         } catch (err: any) {
             if (err.response) {
                 setError(err.response.data.message || "Erro ao validar código");

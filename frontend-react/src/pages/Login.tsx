@@ -44,7 +44,7 @@ function Login() {
             localStorage.setItem("token", data.token);
 
             // Redireciona
-            window.location.href = "/";
+            window.location.href = "/home";
         } catch (err: any) {
             // Se for erro de validação ou status != 2xx
             if (err.response) {

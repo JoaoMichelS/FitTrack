@@ -9,6 +9,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import Home from "./pages/Home"
 import ForgotPassword from "./pages/ForgotPassword";
 import ForgotPasswordVerify from "./pages/ForgotPasswordVerify";
+import ForgotPasswordReset from "./pages/ForgotPasswordReset";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
     <BrowserRouter>
@@ -17,6 +18,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
             <Route path="/register" element={<Register />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/forgot-password/verify" element={<ForgotPasswordVerify />} />
+            <Route path="/forgot-password/verify/reset" element={<ForgotPasswordReset />} />
             <Route path="/social-login" element={<SocialLoginCallback />} />
             <Route path="/" element={
                 <ProtectedRoute>
