@@ -2,11 +2,13 @@ import { useState } from "react";
 import { FaGoogle, FaFacebook } from "react-icons/fa";
 import { FaXTwitter } from "react-icons/fa6";
 import axios from "axios";
+import { useAuth } from "../contexts/AuthContext";
 
 function Login() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState<string | null>(null);
+    const { login } = useAuth();
 
     function loginWithGoogle() {
         window.location.href = `${
@@ -42,7 +44,7 @@ function Login() {
 
             // Armazena o token (caso venha no campo 'token' do JSON)
             localStorage.setItem("token", data.token);
-
+            login();
             // Redireciona
             window.location.href = "/home";
         } catch (err: any) {
