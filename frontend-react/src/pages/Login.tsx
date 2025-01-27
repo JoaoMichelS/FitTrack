@@ -56,10 +56,10 @@ function Login() {
     };
 
     return (
-        <div className="flex flex-col md:flex-row min-h-screen bg-[url('src/assets/img-login.png')] bg-cover bg-center">
+        <div className="flex flex-row min-h-screen bg-[url('src/assets/img-login.png')] bg-cover bg-center">
             {/* Lado Esquerdo (Imagem) */}
             {/* Se quiser que esse lado fique "vazio" mas mostre a imagem ao fundo */}
-            <div className="flex items-center justify-center w-full md:w-0 xl:w-1/2 2xl:w-7/12">
+            <div className="flex items-center justify-center w-0 xl:w-1/2 2xl:w-7/12">
                 {/* Imagem posicionada de forma absoluta */}
                 <img
                     src="src/assets/logo.png"

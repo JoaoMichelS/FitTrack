@@ -1,27 +1,28 @@
 import { useState } from "react";
 import axios from "axios";
+import { Loader2 } from "lucide-react";
 
 function ForgotPassword() {
     const [email, setEmail] = useState("");
     const [error, setError] = useState<string | null>(null);
+    const [isLoading, setIsLoading] = useState(false);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        setIsLoading(true);
+        setError(null);
 
         try {
-            // Usa axios.post() ao invés de fetch()
             const response = await axios.post("/api/password/forgot", {
                 email,
             });
 
             // Se chegou até aqui, o status deve ser 2xx
-            // 'data' contém a resposta do backend
             const data = response.data;
 
-            // Redireciona
             window.location.href = `/forgot-password/verify?email=${encodeURIComponent(email)}`;
         } catch (err: any) {
-            // Se for erro de validação ou status != 2xx
+            setIsLoading(false);
             if (err.response) {
                 setError(err.response.data.message || "Erro ao enviar email");
             } else {
@@ -33,9 +34,7 @@ function ForgotPassword() {
     return (
         <div className="flex flex-col md:flex-row min-h-screen bg-[url('src/assets/img-login.png')] bg-cover bg-center">
             {/* Lado Esquerdo (Imagem) */}
-            {/* Se quiser que esse lado fique "vazio" mas mostre a imagem ao fundo */}
             <div className="flex items-center justify-center w-full md:w-0 xl:w-1/2 2xl:w-7/12">
-                {/* Imagem posicionada de forma absoluta */}
                 <img
                     src="src/assets/logo.png"
                     alt="logo"
@@ -44,7 +43,6 @@ function ForgotPassword() {
             </div>
 
             {/* Lado Direito (Formulário de Registro) */}
-            {/* Usando flex + items-center + justify-center para centralizar */}
             <div className="flex items-center justify-center w-full m-8 md:w-full xl:w-1/2 2xl:w-5/12">
                 <div className="max-w-2xl p-8 bg-white lg:min-w-2xl rounded-2xl">
                     <h2 className="text-3xl font-semibold text-center">
@@ -72,14 +70,23 @@ function ForgotPassword() {
                                 onChange={(e) => setEmail(e.target.value)}
                                 required
                                 className="w-full px-4 py-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                disabled={isLoading}
                             />
                         </div>
 
                         <button
                             type="submit"
-                            className="w-full py-3 text-white rounded-md bg-primary-500 hover:bg-primary-600"
+                            className="flex items-center justify-center w-full py-3 text-white rounded-md bg-primary-500 hover:bg-primary-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                            disabled={isLoading}
                         >
-                            Redefinir Senha
+                            {isLoading ? (
+                                <>
+                                    <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                                    Enviando...
+                                </>
+                            ) : (
+                                "Redefinir Senha"
+                            )}
                         </button>
 
                         <div className="mt-1 text-left">
